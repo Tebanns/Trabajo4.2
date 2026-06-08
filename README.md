@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Aprendisaje.
+Aprendizaje.
 
 ---
 
