@@ -7,6 +7,7 @@ La intensión es que los estudiantes lo usen como punto de partida, lo modifique
 
 ## Objetivo
 
+<<<<<<< HEAD
 * Clonar el repositorio y trabajar en una copia personal
 * Ejecutar Flask y recibir datos **x, y** desde una aplicación móvil
 * Visualizar datos en una página HTML sencilla
@@ -27,6 +28,9 @@ La intensión es que los estudiantes lo usen como punto de partida, lo modifique
 Se puede descargar la aplicación móvil desde aquí:
 
 [Descargar XYaTCPfull.apk](./XYaTCPfull.apk)
+=======
+Aprendizaje.
+>>>>>>> f9e87e0a0b4b143e30c5a2fc3f23fe986e3d37b6
 
 ---
 
