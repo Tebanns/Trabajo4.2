@@ -1,65 +1,377 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="es">
 <head>
- <meta http-equiv="refresh" content="2"></meta>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D00M // ACELERÓMETRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
-	#tabla{border-collapse:collapse;
-		}
-	#q1,#q2,#q3,#q4{	/*Varios id con mismas características*/
-		width:100px;
-		height:100px;
-		border:1px solid black;
-		text-align:center;
-		}
-	#q1{background-color:	/*Cuadrante 1*/
-		{% if ejeX > 0 and ejeY > 0 %}
-			lightblue;
-		{% else %}
-			gray;
-		{% endif %}
-		}
-	#q2{background-color:	/*Cuadrante 2*/
-		{% if ejeX > 0 and ejeY < 0 %}
-			lightblue;
-		{% else %}
-			gray;
-		{% endif %}
-		}
-	#q3{background-color:	/*Cuadrante 3*/
-		{% if ejeX < 0 and ejeY > 0 %}
-			lightblue;
-		{% else %}
-			gray;
-		{% endif %}
-		}
-	#q4{background-color:	/*Cuadrante 4*/
-		{% if ejeX < 0 and ejeY < 0 %}
-			lightblue;
-		{% else %}
-			gray;
-		{% endif %}
-		}
-</style>
+  :root{
+    --bg-deep:    #14100c;
+    --wall-iron:  #4a4233;
+    --wall-iron-dk:#2d281f;
+    --metal-dark: #2b2620;
+    --metal-mid:  #57503f;
+    --bevel-lt:   #8a8067;
+    --bevel-dk:   #100d09;
+    --blood-red:  #9c1f17;
+    --bright-red: #ff3b22;
+    --gold-amber: #f2c14e;
+    --toxic-green:#6fae3e;
+    --phosphor:   #2f6b2f;
+  }
 
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg-deep);
+    font-family:'VT323', monospace;
+    color:var(--gold-amber);
+    overflow:hidden;
+    -webkit-font-smoothing:none;
+  }
+
+  /* ---------- TITLE BAR ---------- */
+  .titlebar{
+    position:relative;
+    text-align:center;
+    padding:10px 0 6px;
+    background:linear-gradient(180deg,var(--wall-iron-dk),var(--bg-deep));
+    border-bottom:3px solid var(--blood-red);
+  }
+  .titlebar h1{
+    margin:0;
+    font-family:'Press Start 2P', monospace;
+    font-size:18px;
+    letter-spacing:2px;
+    color:var(--bright-red);
+    text-shadow:2px 2px 0 #000, 0 0 12px rgba(255,59,34,.5);
+  }
+  .titlebar .sub{
+    font-size:14px;
+    color:var(--metal-mid);
+    letter-spacing:3px;
+  }
+
+  /* ---------- MAIN VIEWPORT (sector view) ---------- */
+  .viewport{
+    position:relative;
+    height: calc(100vh - 250px);
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px),
+      radial-gradient(ellipse at center, rgba(47,107,47,.18), transparent 60%),
+      repeating-linear-gradient(90deg, var(--wall-iron) 0 38px, var(--wall-iron-dk) 38px 40px);
+    overflow:hidden;
+  }
+  .viewport::before{ /* vignette */
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.85) 100%);
+    pointer-events:none;
+  }
+  .radar-grid{
+    position:absolute; left:50%; top:50%;
+    width:260px; height:260px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:2px solid var(--phosphor);
+    box-shadow:0 0 25px rgba(47,107,47,.5) inset, 0 0 18px rgba(47,107,47,.4);
+    background:
+      linear-gradient(0deg, transparent 49.5%, var(--phosphor) 49.5% 50.5%, transparent 50.5%),
+      linear-gradient(90deg, transparent 49.5%, var(--phosphor) 49.5% 50.5%, transparent 50.5%);
+    opacity:.55;
+  }
+  .radar-grid::before, .radar-grid::after{
+    content:"";
+    position:absolute; border:1px solid var(--phosphor); border-radius:50%;
+    opacity:.6;
+  }
+  .radar-grid::before{ inset:30px; }
+  .radar-grid::after{ inset:80px; }
+
+  .reticle{
+    position:absolute; left:50%; top:50%;
+    width:34px; height:34px;
+    margin:-17px 0 0 -17px;
+    transition: transform 120ms linear;
+  }
+  .reticle::before, .reticle::after{
+    content:""; position:absolute; background:var(--bright-red);
+    box-shadow:0 0 6px var(--bright-red);
+  }
+  .reticle::before{ left:0; top:15px; width:34px; height:4px; }
+  .reticle::after{ left:15px; top:0; width:4px; height:34px; }
+  .reticle .core{
+    position:absolute; left:13px; top:13px; width:8px; height:8px;
+    background:var(--bright-red); border-radius:50%;
+    box-shadow:0 0 10px var(--bright-red);
+  }
+
+  .viewport-caption{
+    position:absolute; bottom:8px; left:0; right:0; text-align:center;
+    font-family:'Press Start 2P', monospace;
+    font-size:10px; letter-spacing:1px; color:var(--toxic-green);
+    text-shadow:1px 1px 0 #000;
+  }
+
+  /* ---------- STATUS BAR (DOOM HUD) ---------- */
+  .statusbar{
+    height:230px;
+    background:linear-gradient(180deg, var(--metal-mid), var(--metal-dark));
+    border-top:4px solid var(--bevel-lt);
+    box-shadow:0 -4px 0 var(--bevel-dk) inset;
+    display:flex;
+    align-items:stretch;
+    padding:10px;
+    gap:10px;
+  }
+
+  .panel{
+    background:var(--metal-dark);
+    border:3px solid var(--bevel-dk);
+    box-shadow: inset 2px 2px 0 var(--bevel-lt), inset -2px -2px 0 #000;
+    border-radius:4px;
+    padding:8px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  .panel .label{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--toxic-green);
+    letter-spacing:1px;
+    text-shadow:1px 1px 0 #000;
+  }
+
+  /* directional tilt lamps (left, like ARMS 2-7) */
+  .dirpad{ flex:0 0 110px; }
+  .dirgrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:repeat(3,1fr);
+    gap:4px;
+    width:90px; height:90px;
+  }
+  .lamp{
+    background:#1c1812;
+    border:2px solid var(--bevel-dk);
+    box-shadow:inset 1px 1px 0 #000;
+  }
+  .lamp.on{
+    background:var(--bright-red);
+    box-shadow:0 0 8px var(--bright-red), inset 1px 1px 0 #fff7;
+  }
+
+  /* big LCD digit readouts for EJE X / EJE Y */
+  .digitpanel{ flex:1 1 0; min-width:0; }
+  .digits{
+    font-family:'Press Start 2P', monospace;
+    font-size:30px;
+    letter-spacing:2px;
+    background:#1c1812;
+    border:2px solid var(--bevel-dk);
+    box-shadow:inset 2px 2px 6px #000;
+    padding:8px 4px;
+    border-radius:3px;
+    color:var(--bright-red);
+    text-shadow:0 0 8px rgba(255,59,34,.7);
+    width:100%;
+    text-align:center;
+  }
+  .digits.pos{ color:var(--gold-amber); text-shadow:0 0 8px rgba(242,193,78,.7); }
+  .axis-sub{ font-size:10px; color:var(--metal-mid); }
+
+  /* face panel */
+  .facepanel{ flex:0 0 110px; }
+  .face{
+    width:70px; height:70px;
+    background:#c98c5e;
+    border:2px solid var(--bevel-dk);
+    border-radius:6px;
+    position:relative;
+    box-shadow:inset 0 0 0 2px #00000033;
+  }
+  .face .eye{
+    position:absolute; width:11px; height:11px; background:#1c1812; top:24px;
+  }
+  .face .eye.l{ left:14px; } .face .eye.r{ left:45px; }
+  .face .brow{
+    position:absolute; width:13px; height:3px; background:#1c1812; top:18px;
+  }
+  .face .brow.l{ left:13px; } .face .brow.r{ left:44px; }
+  .face .mouth{
+    position:absolute; left:18px; top:46px; width:34px; height:6px;
+    background:#1c1812;
+  }
+  /* expression states */
+  .face.alert .brow.l{ transform:rotate(15deg); top:16px; }
+  .face.alert .brow.r{ transform:rotate(-15deg); top:16px; }
+  .face.alert .mouth{ height:8px; border-radius:0 0 8px 8px; }
+  .face.pain{ background:#d9613f; }
+  .face.pain .eye{ background:var(--bright-red); box-shadow:0 0 6px var(--bright-red); }
+  .face.pain .brow.l{ transform:rotate(28deg); top:14px; background:#1c1812; }
+  .face.pain .brow.r{ transform:rotate(-28deg); top:14px; background:#1c1812; }
+  .face.pain .mouth{ height:10px; top:44px; border-radius:8px 8px 0 0; background:#1c1812; }
+
+  /* magnitude bar (right panel, like ARMOR) */
+  .magpanel{ flex:0 0 120px; }
+  .barwrap{
+    width:34px; height:130px;
+    background:#1c1812;
+    border:2px solid var(--bevel-dk);
+    box-shadow:inset 2px 2px 6px #000;
+    display:flex; flex-direction:column-reverse;
+    overflow:hidden;
+    border-radius:3px;
+  }
+  .barfill{
+    width:100%;
+    background:repeating-linear-gradient(180deg, var(--toxic-green) 0 6px, #2d4d1f 6px 8px);
+    transition:height 150ms linear;
+  }
+  .barfill.warn{ background:repeating-linear-gradient(180deg, var(--gold-amber) 0 6px, #8a6a1f 6px 8px); }
+  .barfill.crit{ background:repeating-linear-gradient(180deg, var(--bright-red) 0 6px, #6b1a10 6px 8px); }
+  .magval{ font-family:'Press Start 2P', monospace; font-size:13px; color:var(--gold-amber); }
+
+  @media (max-width:760px){
+    .statusbar{ flex-wrap:wrap; height:auto; }
+    .panel{ flex:1 1 45%; }
+    .viewport{ height:calc(100vh - 360px); }
+  }
+</style>
 </head>
 <body>
 
-<h1>Posición XY</h1>
+  <div class="titlebar">
+    <h1>☠ SENSOR MARINE ☠</h1>
+    <div class="sub">SECTOR 119 · NODO INERCIAL</div>
+  </div>
 
-<p>X = {{ ejeX }}</p>
-<p>Y = {{ ejeY }}</p>
+  <div class="viewport">
+    <div class="radar-grid"></div>
+    <div class="reticle" id="reticle"><span class="core"></span></div>
+    <div class="viewport-caption">MANTENTE NIVELADO, MARINE</div>
+  </div>
 
-<table id="tabla">
-<tr id="cuadros">
-    <td id="q1">Q1</td>
-    <td id="q2">Q2</td>
-</tr>
-<tr>
-    <td id="q3">Q3</td>
-    <td id="q4">Q4</td>
-</tr>
-</table>
+  <div class="statusbar">
+
+    <div class="panel dirpad">
+      <div class="label">TILT</div>
+      <div class="dirgrid" id="dirgrid">
+        <div class="lamp" data-dir="nw"></div><div class="lamp" data-dir="n"></div><div class="lamp" data-dir="ne"></div>
+        <div class="lamp" data-dir="w"></div><div class="lamp"></div><div class="lamp" data-dir="e"></div>
+        <div class="lamp" data-dir="sw"></div><div class="lamp" data-dir="s"></div><div class="lamp" data-dir="se"></div>
+      </div>
+      <div class="axis-sub">DIRECCIÓN</div>
+    </div>
+
+    <div class="panel digitpanel">
+      <div class="label">EJE X</div>
+      <div class="digits" id="digitX">{{ '%+06.2f'|format(ejeX) }}</div>
+      <div class="axis-sub">G-FORCE LATERAL</div>
+    </div>
+
+    <div class="panel facepanel">
+      <div class="label">MARINE</div>
+      <div class="face" id="face">
+        <div class="brow l"></div><div class="brow r"></div>
+        <div class="eye l"></div><div class="eye r"></div>
+        <div class="mouth"></div>
+      </div>
+      <div class="axis-sub">ESTADO</div>
+    </div>
+
+    <div class="panel digitpanel">
+      <div class="label">EJE Y</div>
+      <div class="digits" id="digitY">{{ '%+06.2f'|format(ejeY) }}</div>
+      <div class="axis-sub">G-FORCE FRONTAL</div>
+    </div>
+
+    <div class="panel magpanel">
+      <div class="label">IMPACTO</div>
+      <div class="barwrap"><div class="barfill" id="barfill" style="height:0%"></div></div>
+      <div class="magval" id="magval">000%</div>
+    </div>
+
+  </div>
+
+<script>
+  const elX = document.getElementById('digitX');
+  const elY = document.getElementById('digitY');
+  const reticle = document.getElementById('reticle');
+  const face = document.getElementById('face');
+  const barfill = document.getElementById('barfill');
+  const magval = document.getElementById('magval');
+  const lamps = document.querySelectorAll('.lamp');
+
+  const RANGE = 10;        // rango esperado +/- g del sensor para escalar el HUD
+  const RADAR_RADIUS = 110; // px que puede recorrer el retículo dentro del radar
+
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+  function fmt(v){
+    const s = v >= 0 ? '+' : '';
+    return s + v.toFixed(2).padStart(v < 0 ? 6 : 5, '0');
+  }
+
+  function setLamps(x, y){
+    const dz = 0.6; // zona muerta
+    const dirs = new Set();
+    if (y >  dz) dirs.add('n'); if (y < -dz) dirs.add('s');
+    if (x >  dz) dirs.add('e'); if (x < -dz) dirs.add('w');
+    if (x> dz && y> dz) dirs.add('ne');
+    if (x< -dz && y> dz) dirs.add('nw');
+    if (x> dz && y< -dz) dirs.add('se');
+    if (x< -dz && y< -dz) dirs.add('sw');
+    lamps.forEach(l=>{
+      const d = l.dataset.dir;
+      l.classList.toggle('on', d && dirs.has(d));
+    });
+  }
+
+  function update(ejeX, ejeY){
+    elX.textContent = fmt(ejeX);
+    elY.textContent = fmt(ejeY);
+    elX.classList.toggle('pos', ejeX >= 0);
+    elY.classList.toggle('pos', ejeY >= 0);
+
+    const rx = clamp(ejeX / RANGE, -1, 1) * RADAR_RADIUS;
+    const ry = clamp(-ejeY / RANGE, -1, 1) * RADAR_RADIUS;
+    reticle.style.transform = `translate(${rx}px, ${ry}px)`;
+
+    const mag = Math.sqrt(ejeX*ejeX + ejeY*ejeY);
+    const pct = clamp(mag / (RANGE*1.2), 0, 1);
+    barfill.style.height = (pct*100).toFixed(0) + '%';
+    barfill.classList.remove('warn','crit');
+    face.classList.remove('alert','pain');
+    if (pct > 0.7){ barfill.classList.add('crit'); face.classList.add('pain'); }
+    else if (pct > 0.35){ barfill.classList.add('warn'); face.classList.add('alert'); }
+    magval.textContent = String(Math.round(pct*100)).padStart(3,'0') + '%';
+
+    setLamps(ejeX, ejeY);
+  }
+
+  // valores iniciales renderizados por Flask
+  update({{ ejeX }}, {{ ejeY }});
+
+  async function poll(){
+    try{
+      const res = await fetch('/api/sensor', { cache: 'no-store' });
+      const data = await res.json();
+      update(data.ejeX, data.ejeY);
+    }catch(e){
+      console.error('Fallo de lectura del sensor:', e);
+    }finally{
+      setTimeout(poll, 400);
+    }
+  }
+  setTimeout(poll, 400);
+</script>
 
 </body>
 </html>
