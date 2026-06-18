@@ -33,6 +33,11 @@ def index():
     )
 
 
+@app.route('/arma')
+def arma():
+    return render_template('arma.html')
+
+
 @app.route('/api/sensor')
 def api_sensor():
     """Endpoint que consulta el sensor en tiempo real para el polling AJAX del HUD."""
