@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block titulo_doc %}DCSH01 · Termómetros{% endblock %}
+
+{% block encabezado %}
+  <h1 id="titulo_termometros">Termómetros de Inclinación</h1>
+{% endblock %}
+
+{% block contenido %}
+
+  <p id="explicacion_termometros">
+    Esta vista representa los mismos datos X e Y como dos termómetros independientes.
+    La altura de cada columna indica qué tan cerca está el valor de su límite máximo
+    (0% equivale a -{{ "%.0f"|format(10) }} g y 100% equivale a +10 g, usando el punto
+    medio como cero). El color cambia entre verde y rojo según el signo del valor.
+  </p>
+
+  <div id="fila_termometros">
+    <div id="termometro_x">
+      <div id="relleno_x"></div>
+    </div>
+    <div id="termometro_y">
+      <div id="relleno_y"></div>
+    </div>
+  </div>
+
+  <div id="etiquetas_termometros">
+    <span id="etiqueta_x">EJE X: {{ "%+.2f"|format(ejeX) }} ({{ pct_x }}%)</span>
+    <span id="etiqueta_y">EJE Y: {{ "%+.2f"|format(ejeY) }} ({{ pct_y }}%)</span>
+  </div>
+
+{% endblock %}
+
+{% block extra_style %}
+
+  #explicacion_termometros{
+    font-size:16px;
+    line-height:1.5;
+    color:var(--bevel-lt);
+    text-align:center;
+    margin-bottom:18px;
+  }
+
+  #fila_termometros{
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:60px;
+    margin:24px 0;
+  }
+
+  #termometro_x{
+    width:60px;
+    height:240px;
+    background-color:var(--metal-dark);
+    border:3px solid var(--bevel-dk);
+    border-radius:8px;
+    display:flex;
+    flex-direction:column-reverse;
+    overflow:hidden;
+  }
+  #termometro_y{
+    width:60px;
+    height:240px;
+    background-color:var(--metal-dark);
+    border:3px solid var(--bevel-dk);
+    border-radius:8px;
+    display:flex;
+    flex-direction:column-reverse;
+    overflow:hidden;
+  }
+
+  #relleno_x{
+    width:100%;
+    height:{{ pct_x }}%;
+    background-color:{{ color_x }};
+  }
+  #relleno_y{
+    width:100%;
+    height:{{ pct_y }}%;
+    background-color:{{ color_y }};
+  }
+
+  #etiquetas_termometros{
+    text-align:center;
+    margin-top:14px;
+    font-size:18px;
+  }
+  #etiqueta_x{ color:var(--rojo); margin-right:30px; font-weight:bold; }
+  #etiqueta_y{ color:var(--verde); font-weight:bold; }
+
+{% endblock %}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es" id="raiz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="3">
+<title>{% block titulo_doc %}DCSH01 · Visualización X-Y{% endblock %}</title>
+<style>
+
+  /* variables de color, definidas en el elemento raíz y referenciadas por id */
+  #raiz{
+    --bg-deep:#14100c;
+    --wall:#2d281f;
+    --metal-dark:#2b2620;
+    --metal-mid:#57503f;
+    --bevel-lt:#8a8067;
+    --bevel-dk:#100d09;
+    --rojo:#ff3b22;
+    --ambar:#f2c14e;
+    --verde:#6fae3e;
+    --tinte:#3a3328;
+  }
+
+  #cuerpo{
+    margin:0;
+    background-color:var(--bg-deep);
+    color:var(--ambar);
+    font-family:Georgia, "Times New Roman", serif;
+    min-height:100vh;
+  }
+
+  #encabezado{
+    text-align:center;
+    padding:16px 10px 10px;
+    background-color:var(--wall);
+    border-bottom:4px solid var(--rojo);
+  }
+
+  #barra_navegacion{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    padding:10px;
+    background-color:var(--metal-dark);
+    border-bottom:3px solid var(--bevel-dk);
+  }
+
+  #enlace_principal{
+    color:var(--verde);
+    text-decoration:none;
+    border:2px solid var(--verde);
+    padding:6px 12px;
+    border-radius:3px;
+    font-weight:bold;
+    letter-spacing:1px;
+  }
+  #enlace_termometros{
+    color:var(--verde);
+    text-decoration:none;
+    border:2px solid var(--verde);
+    padding:6px 12px;
+    border-radius:3px;
+    font-weight:bold;
+    letter-spacing:1px;
+  }
+  #enlace_arma{
+    color:var(--verde);
+    text-decoration:none;
+    border:2px solid var(--verde);
+    padding:6px 12px;
+    border-radius:3px;
+    font-weight:bold;
+    letter-spacing:1px;
+  }
+  #enlace_principal:hover{ background-color:var(--verde); color:#0a0a0a; }
+  #enlace_termometros:hover{ background-color:var(--verde); color:#0a0a0a; }
+  #enlace_arma:hover{ background-color:var(--verde); color:#0a0a0a; }
+
+  #contenedor_principal{
+    max-width:760px;
+    margin:0 auto;
+    padding:24px 16px 40px;
+  }
+
+  #pie_pagina{
+    text-align:center;
+    padding:14px;
+    color:var(--metal-mid);
+    font-size:14px;
+    border-top:3px solid var(--bevel-dk);
+  }
+
+  {% block extra_style %}{% endblock %}
+
+</style>
+</head>
+<body id="cuerpo">
+
+  <div id="encabezado">
+    {% block encabezado %}{% endblock %}
+  </div>
+
+  <div id="barra_navegacion">
+    <a id="enlace_principal" href="/">Principal (cuadrícula)</a>
+    <a id="enlace_termometros" href="/termometros">Termómetros</a>
+    <a id="enlace_arma" href="/arma">Armería</a>
+  </div>
+
+  <div id="contenedor_principal">
+    {% block contenido %}{% endblock %}
+  </div>
+
+  <div id="pie_pagina">
+    DCSH01 · Desarrollo de Software para Hardware · {{ nombre_alumno }} · actualización automática cada 3s
+  </div>
+
+</body>
+</html>
