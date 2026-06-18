@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D00M // ARMERÍA — BFG-9000</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:    #14100c;
+    --wall-iron:  #4a4233;
+    --wall-iron-dk:#2d281f;
+    --metal-dark: #2b2620;
+    --metal-mid:  #57503f;
+    --bevel-lt:   #8a8067;
+    --bevel-dk:   #100d09;
+    --blood-red:  #9c1f17;
+    --bright-red: #ff3b22;
+    --gold-amber: #f2c14e;
+    --toxic-green:#6fae3e;
+    --phosphor:   #2f6b2f;
+    --core-glow:  #7dff5a;
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg-deep);
+    font-family:'VT323', monospace;
+    color:var(--gold-amber);
+    overflow:hidden;
+  }
+
+  .titlebar{
+    position:relative;
+    text-align:center;
+    padding:10px 0 6px;
+    background:linear-gradient(180deg,var(--wall-iron-dk),var(--bg-deep));
+    border-bottom:3px solid var(--blood-red);
+  }
+  .titlebar h1{
+    margin:0;
+    font-family:'Press Start 2P', monospace;
+    font-size:16px;
+    letter-spacing:2px;
+    color:var(--bright-red);
+    text-shadow:2px 2px 0 #000, 0 0 12px rgba(255,59,34,.5);
+  }
+  .titlebar .sub{ font-size:14px; color:var(--metal-mid); letter-spacing:3px; }
+  .back-link{
+    position:absolute; left:14px; top:14px;
+    font-family:'Press Start 2P', monospace;
+    font-size:10px; color:var(--toxic-green);
+    text-decoration:none; letter-spacing:1px;
+    border:2px solid var(--toxic-green);
+    padding:6px 8px; border-radius:3px;
+    background:var(--metal-dark);
+  }
+  .back-link:hover{ background:var(--toxic-green); color:#0a0a0a; }
+
+  .armory{
+    height:calc(100vh - 64px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:36px;
+    padding:20px;
+    background:
+      radial-gradient(ellipse at center, rgba(125,255,90,.10), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 4px),
+      repeating-linear-gradient(90deg, var(--wall-iron) 0 38px, var(--wall-iron-dk) 38px 40px);
+  }
+
+  /* ----- pedestal / display rig ----- */
+  .pedestal{
+    position:relative;
+    width:480px; max-width:60vw;
+  }
+  .rig-glow{
+    position:absolute; left:50%; top:52%;
+    width:380px; height:380px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle, var(--core-glow) 0%, transparent 70%);
+    opacity:.35;
+    animation:throb 2.4s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes throb{
+    0%,100%{ opacity:.22; transform:translate(-50%,-50%) scale(.94); }
+    50%{ opacity:.45; transform:translate(-50%,-50%) scale(1.05); }
+  }
+
+  #gun{ position:relative; width:100%; display:block; filter:drop-shadow(0 10px 14px #000); }
+  .core-orb{ animation:pulse 2.4s ease-in-out infinite; transform-origin:center; }
+  @keyframes pulse{
+    0%,100%{ opacity:.75; }
+    50%{ opacity:1; }
+  }
+  #gun.charging .core-orb{ animation:chargeup .9s ease-in-out infinite; }
+  @keyframes chargeup{
+    0%{ opacity:.6; transform:scale(1); }
+    50%{ opacity:1; transform:scale(1.35); }
+    100%{ opacity:.6; transform:scale(1); }
+  }
+  .flash{
+    position:absolute; inset:0;
+    background:radial-gradient(circle at 78% 50%, #d9ffcf 0%, transparent 55%);
+    opacity:0; pointer-events:none;
+  }
+  .flash.fire{ animation:fireflash .35s ease-out; }
+  @keyframes fireflash{
+    0%{ opacity:1; } 100%{ opacity:0; }
+  }
+
+  /* ----- stat panel ----- */
+  .statpanel{
+    width:280px;
+    background:var(--metal-dark);
+    border:3px solid var(--bevel-dk);
+    box-shadow: inset 2px 2px 0 var(--bevel-lt), inset -2px -2px 0 #000;
+    border-radius:4px;
+    padding:16px;
+  }
+  .statpanel h2{
+    margin:0 0 10px;
+    font-family:'Press Start 2P', monospace;
+    font-size:13px; color:var(--bright-red);
+    text-shadow:1px 1px 0 #000;
+    letter-spacing:1px;
+  }
+  .stat-row{ margin-bottom:12px; }
+  .stat-row .k{ font-size:13px; color:var(--metal-mid); letter-spacing:1px; }
+  .stat-row .v{ font-size:20px; color:var(--gold-amber); }
+  .ammo-bar{
+    width:100%; height:16px;
+    background:#1c1812;
+    border:2px solid var(--bevel-dk);
+    box-shadow:inset 2px 2px 4px #000;
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .ammo-bar .fill{
+    height:100%; width:92%;
+    background:repeating-linear-gradient(90deg, var(--toxic-green) 0 6px, #2d4d1f 6px 8px);
+  }
+  .fire-btn{
+    width:100%;
+    margin-top:10px;
+    font-family:'Press Start 2P', monospace;
+    font-size:12px;
+    letter-spacing:1px;
+    color:#1c1812;
+    background:var(--bright-red);
+    border:3px solid var(--bevel-dk);
+    box-shadow: inset 2px 2px 0 #ff7a63, 0 3px 0 #5e0d08;
+    border-radius:4px;
+    padding:12px 6px;
+    cursor:pointer;
+  }
+  .fire-btn:active{ box-shadow:none; transform:translateY(3px); }
+  .status-line{
+    margin-top:10px; font-size:14px; color:var(--toxic-green); min-height:18px;
+  }
+
+  @media (max-width:760px){
+    .armory{ flex-direction:column; gap:14px; }
+    .pedestal{ width:88vw; }
+    .statpanel{ width:88vw; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="titlebar">
+    <a href="/" class="back-link">&larr; HUD</a>
+    <h1>☠ ARMERÍA ☠</h1>
+    <div class="sub">CAÑÓN DE PLASMA · BFG-9000</div>
+  </div>
+
+  <div class="armory">
+
+    <div class="pedestal">
+      <div class="rig-glow"></div>
+      <div class="flash" id="flash"></div>
+      <svg id="gun" viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+        <!-- culata / stock -->
+        <path d="M40 150 L100 130 L100 175 L40 190 Z" fill="#3a3328" stroke="#100d09" stroke-width="3"/>
+        <!-- empuñadura -->
+        <rect x="105" y="150" width="18" height="55" rx="3" fill="#2b2620" stroke="#100d09" stroke-width="3"/>
+        <!-- cuerpo principal -->
+        <rect x="95" y="95" width="190" height="62" rx="8" fill="#57503f" stroke="#100d09" stroke-width="4"/>
+        <rect x="95" y="95" width="190" height="14" fill="#8a8067" opacity=".5"/>
+        <!-- ventilaciones -->
+        <rect x="115" y="112" width="8" height="30" fill="#100d09"/>
+        <rect x="130" y="112" width="8" height="30" fill="#100d09"/>
+        <rect x="145" y="112" width="8" height="30" fill="#100d09"/>
+        <!-- visor / mira -->
+        <rect x="170" y="78" width="40" height="20" rx="3" fill="#2b2620" stroke="#100d09" stroke-width="3"/>
+        <circle cx="190" cy="88" r="5" fill="var(--core-glow)" opacity=".8"/>
+        <!-- anillo del núcleo -->
+        <circle cx="285" cy="126" r="46" fill="#1c1812" stroke="#100d09" stroke-width="6"/>
+        <circle cx="285" cy="126" r="38" fill="none" stroke="var(--bevel-lt)" stroke-width="4" opacity=".6"/>
+        <!-- núcleo de energía -->
+        <circle class="core-orb" cx="285" cy="126" r="26" fill="var(--core-glow)"/>
+        <circle class="core-orb" cx="285" cy="126" r="14" fill="#eaffd9"/>
+        <!-- cañón -->
+        <rect x="300" y="108" width="150" height="36" rx="6" fill="#3a3328" stroke="#100d09" stroke-width="4"/>
+        <rect x="430" y="100" width="22" height="52" rx="4" fill="#2b2620" stroke="#100d09" stroke-width="4"/>
+        <!-- detalles rojos -->
+        <rect x="305" y="100" width="60" height="6" fill="var(--bright-red)"/>
+        <rect x="305" y="148" width="60" height="6" fill="var(--bright-red)"/>
+      </svg>
+    </div>
+
+    <div class="statpanel">
+      <h2>BFG-9000</h2>
+      <div class="stat-row">
+        <div class="k">DAÑO</div>
+        <div class="v">██████████ 9000</div>
+      </div>
+      <div class="stat-row">
+        <div class="k">CELDAS DE ENERGÍA</div>
+        <div class="ammo-bar"><div class="fill"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="k">CLASE</div>
+        <div class="v">CAÑÓN DE PLASMA PESADO</div>
+      </div>
+      <button class="fire-btn" id="fireBtn">DISPARAR</button>
+      <div class="status-line" id="statusLine">LISTO PARA DISPARAR</div>
+    </div>
+
+  </div>
+
+<script>
+  const gun = document.getElementById('gun');
+  const flash = document.getElementById('flash');
+  const statusLine = document.getElementById('statusLine');
+  const fireBtn = document.getElementById('fireBtn');
+
+  fireBtn.addEventListener('click', () => {
+    if (gun.classList.contains('charging')) return;
+    gun.classList.add('charging');
+    statusLine.textContent = 'CARGANDO...';
+    fireBtn.disabled = true;
+
+    setTimeout(() => {
+      gun.classList.remove('charging');
+      flash.classList.remove('fire');
+      // forzar reinicio de animación
+      void flash.offsetWidth;
+      flash.classList.add('fire');
+      statusLine.textContent = '¡IMPACTO DIRECTO!';
+      setTimeout(() => {
+        statusLine.textContent = 'LISTO PARA DISPARAR';
+        fireBtn.disabled = false;
+      }, 900);
+    }, 900);
+  });
+</script>
+
+</body>
+</html>
