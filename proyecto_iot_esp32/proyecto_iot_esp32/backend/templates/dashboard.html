@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Sin JavaScript: la página se refresca sola cada 3 segundos -->
+  <meta http-equiv="refresh" content="3">
+  <title>Monitor IoT - DCSH01</title>
+  <style>
+    #cuerpo {
+      background-color: #0d0d0d;
+      color: #33ff33;
+      font-family: "Courier New", monospace;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem 1rem;
+    }
+    #encabezado {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #33ff33;
+      padding-bottom: 1rem;
+    }
+    #titulo {
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+    }
+    #subtitulo {
+      font-size: 0.85rem;
+      color: #1fae1f;
+    }
+    #panel-estado {
+      max-width: 700px;
+      margin: 0 auto 2rem auto;
+      border: 1px solid #33ff33;
+      padding: 1rem 1.5rem;
+    }
+    #panel-comando {
+      max-width: 700px;
+      margin: 0 auto 2rem auto;
+      border: 1px dashed #33ff33;
+      padding: 1rem 1.5rem;
+      text-align: center;
+    }
+    #boton-activar {
+      background-color: #33ff33;
+      color: #0d0d0d;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-family: "Courier New", monospace;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 0 0.3rem;
+    }
+    #boton-desactivar {
+      background-color: transparent;
+      color: #33ff33;
+      border: 1px solid #33ff33;
+      padding: 0.6rem 1.2rem;
+      font-family: "Courier New", monospace;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 0 0.3rem;
+    }
+    #tabla-historial {
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    #tabla-historial th, #tabla-historial td {
+      border: 1px solid #1fae1f;
+      padding: 0.4rem 0.6rem;
+      text-align: center;
+    }
+    #tabla-historial th {
+      background-color: #123312;
+    }
+    #pie-pagina {
+      text-align: center;
+      color: #1fae1f;
+      font-size: 0.75rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="cuerpo">
+
+    <div id="encabezado">
+      <div id="titulo">&gt; MONITOR_SISTEMA_IOT.exe</div>
+      <div id="subtitulo">DCSH01 - Sistema de sensores y actuación remota</div>
+    </div>
+
+    <div id="panel-estado">
+      &gt; Ultima actualizacion : {{ estado.ultima_actualizacion or "sin datos aun" }}<br>
+      &gt; Potenciometro (raw)  : {{ estado.pot_valor if estado.pot_valor is not none else "--" }}<br>
+      &gt; Potenciometro (%)    : {{ estado.pot_porcentaje if estado.pot_porcentaje is not none else "--" }}<br>
+      &gt; Movimiento (PIR)     : {{ "DETECTADO" if estado.movimiento else "sin movimiento" }}<br>
+      &gt; LED alerta (rojo)    : {{ "ON" if estado.led_alerta else "OFF" }}<br>
+      &gt; LED manual (azul)    : {{ "ON" if comando.led_manual else "OFF" }}<br>
+    </div>
+
+    <div id="panel-comando">
+      &gt; Control manual del LED azul (tarjeta receptora)<br><br>
+      <form action="/comando" method="POST" style="display:inline">
+        <input type="hidden" name="accion" value="activar">
+        <button id="boton-activar" type="submit">ACTIVAR</button>
+      </form>
+      <form action="/comando" method="POST" style="display:inline">
+        <input type="hidden" name="accion" value="desactivar">
+        <button id="boton-desactivar" type="submit">DESACTIVAR</button>
+      </form>
+    </div>
+
+    <table id="tabla-historial">
+      <tr>
+        <th>Fecha / Hora</th>
+        <th>Pot (raw)</th>
+        <th>Pot (%)</th>
+        <th>Movimiento</th>
+        <th>LED alerta</th>
+        <th>Manual</th>
+      </tr>
+      {% for evento in historial %}
+      <tr>
+        <td>{{ evento.get("created_at", "--") }}</td>
+        <td>{{ evento.get("pot_valor", "--") }}</td>
+        <td>{{ evento.get("pot_porcentaje", "--") }}</td>
+        <td>{{ "SI" if evento.get("movimiento") else "no" }}</td>
+        <td>{{ "SI" if evento.get("led_alerta") else "no" }}</td>
+        <td>{{ "SI" if evento.get("comando_manual") else "no" }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6">Aun no hay eventos registrados en Supabase.</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <div id="pie-pagina">
+      &gt; La pagina se actualiza automaticamente cada 3 segundos_
+    </div>
+
+  </div>
+</body>
+</html>

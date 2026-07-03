@@ -1,0 +1,15 @@
+Coloca aquí las capturas de pantalla o videos cortos que muestren:
+
+1. El Monitor Serial del emisor mostrando lecturas del potenciómetro y PIR.
+2. El Monitor Serial del receptor mostrando la recepción por ESP-NOW.
+3. Los 3 LEDs físicos encendidos en sus distintos estados (normal, alerta, manual).
+4. El panel Flask (monitor tipo terminal) en el navegador.
+5. La tabla "eventos" en Supabase con registros guardados (fecha/hora incluida).
+
+Sugerencia de nombres de archivo:
+  01_serial_emisor.png
+  02_serial_receptor.png
+  03_leds_estados.jpg
+  04_panel_flask.png
+  05_supabase_tabla.png
+  06_demo_funcionamiento.mp4
