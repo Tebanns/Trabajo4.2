@@ -10,9 +10,9 @@
 
 | Integrante | Rol dentro del proyecto |
 |---|---|
-| _(completar nombre)_ | Firmware tarjeta Emisor / lectura de sensores |
-| _(completar nombre)_ | Firmware tarjeta Receptor / actuación / backend Flask |
-| _(completar nombre)_ | Integración Supabase / documentación / pruebas |
+| Esteban Rivera - Sergio Paez_ | Firmware tarjeta Emisor / lectura de sensores |
+| Esteban Rivera - Sergio Paez_ | Firmware tarjeta Receptor / actuación / backend Flask |
+| Esteban Rivera - Sergio Paez_ | Integración Supabase / documentación / pruebas |
 
 > Ajustar esta tabla según cómo se repartió realmente el trabajo del grupo.
 
@@ -109,10 +109,6 @@ distinta y complementaria, evitando que ninguna quede sin un propósito real den
                                                     └───────────────────────────────────┘
 
 Usuario humano ──▶ navegador ──▶ panel Flask (monitor terminal + botones ACTIVAR/DESACTIVAR)
-```
-
-> También puedes rehacer este diagrama a mano o en [draw.io](https://app.diagrams.net/) y
-> reemplazar esta sección por una imagen dentro de `capturas/`.
 
 ---
 
@@ -157,10 +153,10 @@ proyecto_iot_esp32/
 | Componente | Tarjeta | Pin ESP32 |
 |---|---|---|
 | Potenciómetro (señal central) | Emisor | GPIO34 |
-| Sensor PIR (salida) | Emisor | GPIO32 |
-| LED verde | Receptor | GPIO25 |
-| LED rojo | Receptor | GPIO26 |
-| LED azul | Receptor | GPIO27 |
+| Sensor PIR (salida) | Emisor | GPIO35 |
+| LED verde | Receptor | GPIO12 |
+| LED rojo | Receptor | GPIO14 |
+| LED azul | Receptor | GPIO22 |
 
 ---
 
@@ -189,10 +185,7 @@ Como es la primera vez que se configura, aquí va el detalle completo:
 ```
 SUPABASE_URL=https://tu-proyecto.supabase.co
 SUPABASE_KEY=tu-api-key-real
-```
-
-> ⚠️ El archivo `.env` **nunca se sube a GitHub** (ya está excluido en `.gitignore`). Cada
-> integrante del grupo debe crear su propio `.env` local con las mismas credenciales.
+``
 
 ---
 
@@ -219,9 +212,9 @@ necesitará para saber a quién enviarle los datos.
    `HTTPClient` (viene incluida con el core de ESP32).
 3. Cambia estas líneas por tus datos reales:
    ```cpp
-   const char* ssid     = "TU_RED_WIFI";
-   const char* password = "TU_CLAVE_WIFI";
-   const char* SERVIDOR_FLASK = "http://IP_DE_TU_PC:5000";
+   const char* ssid     = "Incendio";
+   const char* password = "1234567899";
+   const char* SERVIDOR_FLASK = "http://127.0.0.1:5000";
    ```
 4. Sube el código. Abre el **Monitor Serial (115200 baudios)** y anota:
    - La **MAC** de esta tarjeta (la usarás en el emisor)
@@ -232,8 +225,8 @@ necesitará para saber a quién enviarle los datos.
 1. Abre `firmware/emisor_sensores/emisor_sensores.ino`.
 2. Reemplaza:
    ```cpp
-   uint8_t macReceptor[] = {0x30, 0xC6, 0xF7, 0x29, 0x2D, 0xB0}; // <- MAC real de la Tarjeta 2
-   #define CANAL_WIFI 6 // <- canal real que mostró la Tarjeta 2
+   uint8_t macReceptor[] = {0x30, 0xC6, 0xF7, 0x29, 0x2D, 0xB0}; //
+   #define CANAL_WIFI 11 // 
    ```
 3. Sube el código a la Tarjeta 1.
 
@@ -274,15 +267,3 @@ necesitará para saber a quién enviarle los datos.
 ## 10. Evidencia de funcionamiento
 
 Ver carpeta [`capturas/`](capturas/) para capturas de pantalla y video corto de la demo.
-
----
-
-## 11. Posibles mejoras futuras
-
-- Agregar autenticación al panel Flask antes de permitir activar el LED manual.
-- Migrar las políticas de Supabase (RLS) de "acceso público" a políticas más restrictivas
-  usando `service_role` solo desde el backend.
-- Agregar un cuarto LED o buzzer para diferenciar "alerta por movimiento" de
-  "alerta por potenciómetro alto".
-- Mostrar un gráfico histórico (aunque sea en texto/ASCII) del porcentaje del potenciómetro
-  en el panel de Flask.
