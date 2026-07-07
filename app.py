@@ -4,12 +4,12 @@ import math
 
 app = Flask(__name__)
 
-HOST = "10.178.118.219"     ## ip del servidor
+HOST = "192.168.100.39"     ## ip del servidor
 PORT = 12345                ## Puerto del servidor
 
 RANGO = 10.0          # rango +/- esperado de los valores del sensor (ajustar si es necesario)
 TAMANO_GRILLA = 8     # cuadrícula 8x8 (la pauta exige mínimo 4x4)
-NOMBRE_ALUMNO = "Nombre Apellido"   # TODO: reemplazar por tu nombre completo
+NOMBRE_ALUMNO = "Esteban Rivera Zurita" 
 
 
 def leer_sensor():
